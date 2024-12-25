@@ -54,6 +54,9 @@ def get_check_prompt(question: str, result, metadata):
     elif metadata["error_code"] == -4:
         # runtime error
         message = f"The above code is incorrect and got a runtime error.\nInput: {metadata['inputs']}\nExpected: {metadata['expected']}\n{metadata['error']}"
+    elif metadata["error_code"] == -5:
+        # 我自己加的
+        message = f"The above code is incorrect; it runs for a long time and doesn't return a result, even for a simple test case."
     else:
         raise NotImplementedError(
             f"metadata['error_code'] = {metadata['error_code']} not implemented || {metadata=}"
@@ -271,6 +274,56 @@ def format_prompt_self_repair(
     elif LanguageModelStyle == LMStyle.DracarysQwen:
         prompt = f"{get_qwen_question_template_answer(question, code, result,metadata)}"
         return prompt
+    elif LanguageModelStyle == LMStyle.CodeQwenInstruct:
+        chat_messages = [
+            {"role": "system", "content": PromptConstants.SYSTEM_MESSAGE_GENERIC},
+        ]
+        chat_messages += [
+            {
+                "role": "user",
+                "content": get_generic_question_template_answer(
+                    question, code, result, metadata
+                ),
+            },
+        ]
+
+        from transformers import AutoTokenizer
+
+        tokenizer = AutoTokenizer.from_pretrained(
+            "/mnt/jfs/ckpt/checkpoints/Qwen2.5-Coder-7B-Instruct", padding_side="left", use_fast=False
+        )
+        return tokenizer.apply_chat_template(
+            chat_messages,
+            tokenize=False,
+            add_generation_prompt=True,
+            truncation=False,
+            padding=False,
+        )
+    elif LanguageModelStyle == LMStyle.DeepSeekAPI:
+        chat_messages = [
+            {"role": "system", "content": PromptConstants.SYSTEM_MESSAGE_GENERIC},
+        ]
+        chat_messages += [
+            {
+                "role": "user",
+                "content": get_generic_question_template_answer(
+                    question, code, result, metadata
+                ),
+            },
+        ]
+
+        from transformers import AutoTokenizer
+
+        tokenizer = AutoTokenizer.from_pretrained(
+            "/mnt/jfs/ckpt/checkpoints/DeepSeek-V2.5-1210", padding_side="left", use_fast=False
+        )
+        return tokenizer.apply_chat_template(
+            chat_messages,
+            tokenize=False,
+            add_generation_prompt=True,
+            truncation=False,
+            padding=False,
+        )
     elif LanguageModelStyle == LMStyle.DracarysLlama:
         chat_messages = [
             {"role": "system", "content": PromptConstants.SYSTEM_MESSAGE_GENERIC},

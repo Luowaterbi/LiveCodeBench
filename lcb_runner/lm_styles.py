@@ -17,6 +17,7 @@ class LMStyle(Enum):
     GenericBase = "GenericBase"
 
     DeepSeekCodeInstruct = "DeepSeekCodeInstruct"
+    DeepSeekCodeV2Instruct = "DeepSeekCodeV2Instruct"
     CodeLLaMaInstruct = "CodeLLaMaInstruct"
     StarCoderInstruct = "StarCoderInstruct"
     CodeQwenInstruct = "CodeQwenInstruct"
@@ -168,10 +169,12 @@ LanguageModelList: list[LanguageModel] = [
         link="https://huggingface.co/deepseek-ai/DeepSeek-V2",
     ),
     LanguageModel(
-        "deepseek-coder",
-        "DeepSeekCoder-V2.5",
+        "DeepSeek-V2.5-1210",
+        "DeepSeek-V2.5-1210",
         LMStyle.DeepSeekAPI,
-        datetime(2023, 8, 1),
+        # datetime(2023, 9, 1),
+        # 虽然DeepSeek-V2.5-1210是上面截止的，但是因为基底模型是Qwen，只看在Qwen这个时间范围内的结果就行
+        datetime(2024, 7, 1),
         link="https://huggingface.co/deepseek-ai/DeepSeek-V2",
     ),
     LanguageModel(
@@ -591,8 +594,15 @@ LanguageModelList: list[LanguageModel] = [
         "Qwen/Qwen2.5-Coder-7B-Instruct",
         "Qwen2.5-Coder-Ins-7B",
         LMStyle.CodeQwenInstruct,
-        datetime(2023, 8, 30),
+        datetime(2024, 7, 1),
         link="https://huggingface.co/Qwen/Qwen2.5-Coder-7B-Instruct",
+    ),
+    LanguageModel(
+        "Qwen/Qwen2.5-Coder-32B-Instruct",
+        "Qwen2.5-Coder-Ins-32B",
+        LMStyle.CodeQwenInstruct,
+        datetime(2024, 7, 1),
+        link="https://huggingface.co/Qwen/Qwen2.5-Coder-32B-Instruct",
     ),
     LanguageModel(
         "m-a-p/OpenCodeInterpreter-DS-33B",

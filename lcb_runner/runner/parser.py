@@ -118,7 +118,10 @@ def get_args():
         help="Folder name to save the custom output results (output file folder modified if None)",
     )
     parser.add_argument("--dtype", type=str, default="bfloat16", help="Dtype for vllm")
-
+    parser.add_argument("--start_date", type=bool, default=False, help="Whether only need problems after start date of model")
+    parser.add_argument("--student_model", type=str, default="", help="The student model need to be repaired")
+    parser.add_argument("--teacher_prompt", type=str, default="", help="Repair Prompt")
+    
     args = parser.parse_args()
 
     args.stop = args.stop.split(",")

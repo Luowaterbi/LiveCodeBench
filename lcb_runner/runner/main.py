@@ -23,8 +23,23 @@ def main():
     if args.debug:
         print(f"Running with {len(benchmark)} instances in debug mode")
         benchmark = benchmark[:5]
+    
+    if args.student_model:
+        student_model = LanguageModelStore[args.student_model]
 
-    output_path = get_output_path(model.model_repr, args)
+    if args.start_date:
+        cut_off = model.release_date if not args.student_model else max(model.release_date, student_model.release_date)
+        benchmark = [
+            instance
+            for instance in benchmark
+            if instance.contest_date >= cut_off
+        ]
+        print(f"Only Process Problems whose date is after {cut_off} which is the release date of {model.model_name}")
+    
+    if args.student_model:
+        output_path = get_output_path(student_model.model_repr, args)
+    else:
+        output_path = get_output_path(model.model_repr, args)
     eval_file = output_path.replace(".json", "_eval.json")
     eval_all_file = output_path.replace(".json", "_eval_all.json")
 

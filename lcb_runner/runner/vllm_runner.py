@@ -1,9 +1,9 @@
-try:
-    from transformers import AutoTokenizer
-    from vllm import LLM, SamplingParams
-except ImportError as e:
-    # print("Cannot import vllm")
-    pass
+# try:
+from transformers import AutoTokenizer
+from vllm import LLM, SamplingParams
+# except ImportError as e:
+#     print("Cannot import vllm")
+#     pass
 
 from lcb_runner.runner.base_runner import BaseRunner
 

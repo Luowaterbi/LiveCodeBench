@@ -101,30 +101,30 @@ def compute_scores(args):
     easy_corrects = [sum(x["graded_list"]) for x in results if x["difficulty"] == "easy"]
     med_corrects = [sum(x["graded_list"]) for x in results if x["difficulty"] == "medium"]
     hard_corrects = [sum(x["graded_list"]) for x in results if x["difficulty"] == "hard"]
-    for k in [1, 5, 10, 25, 50, 100, 150, 200]:
-        print(
-            f"Pass@{k} = ",
-            estimate_pass_at_k(totals, corrects, k).mean(),
-            # np.array(
-            #     [estimate_pass_at_k(t, c, k) for t, c in zip(totals, corrects)]
-            # ).mean(),
-        )
-        print(
-            f"Easy Pass@{k} = ",
-            estimate_pass_at_k(easy_totals, easy_corrects, k).mean(),
-        )
-        print(
-            f"Medium Pass@{k} = ",
-            estimate_pass_at_k(med_totals, med_corrects, k).mean(),
-        )
-        print(
-            f"Hard Pass@{k} = ",
-            estimate_pass_at_k(hard_totals, hard_corrects, k).mean(),
-        )
+    # for k in [1, 5, 10, 25, 50, 100, 150, 200]:
+    #     print(
+    #         f"Pass@{k} = ",
+    #         estimate_pass_at_k(totals, corrects, k).mean(),
+    #         # np.array(
+    #         #     [estimate_pass_at_k(t, c, k) for t, c in zip(totals, corrects)]
+    #         # ).mean(),
+    #     )
+    #     print(
+    #         f"Easy Pass@{k} = ",
+    #         estimate_pass_at_k(easy_totals, easy_corrects, k).mean(),
+    #     )
+    #     print(
+    #         f"Medium Pass@{k} = ",
+    #         estimate_pass_at_k(med_totals, med_corrects, k).mean(),
+    #     )
+    #     print(
+    #         f"Hard Pass@{k} = ",
+    #         estimate_pass_at_k(hard_totals, hard_corrects, k).mean(),
+    #     )
 
-
+    print("All, Easy, Medium, Hard")
     pass_1_list = [result["pass@1"] for result in results]
-    print(f"Pass@1: {sum(pass_1_list) / len(pass_1_list)}")
+    print(f"{sum(pass_1_list) / len(pass_1_list)}")
 
     easy_pass_1_list = [
         result["pass@1"]
@@ -132,7 +132,7 @@ def compute_scores(args):
         if "difficulty" in result and result["difficulty"] == "easy"
     ]
     if len(easy_pass_1_list) > 0:
-        print(f"Easy Pass@1: {sum(easy_pass_1_list) / len(easy_pass_1_list)}")
+        print(f"{sum(easy_pass_1_list) / len(easy_pass_1_list)}")
 
     medium_pass_1_list = [
         result["pass@1"]
@@ -140,7 +140,7 @@ def compute_scores(args):
         if "difficulty" in result and result["difficulty"] == "medium"
     ]
     if len(medium_pass_1_list) > 0:
-        print(f"Medium Pass@1: {sum(medium_pass_1_list) / len(medium_pass_1_list)}")
+        print(f"{sum(medium_pass_1_list) / len(medium_pass_1_list)}")
 
     hard_pass_1_list = [
         result["pass@1"]
@@ -148,7 +148,7 @@ def compute_scores(args):
         if "difficulty" in result and result["difficulty"] == "hard"
     ]
     if len(hard_pass_1_list) > 0:
-        print(f"Hard Pass@1: {sum(hard_pass_1_list) / len(hard_pass_1_list)}")
+        print(f"{sum(hard_pass_1_list) / len(hard_pass_1_list)}")
 
 
 if __name__ == "__main__":

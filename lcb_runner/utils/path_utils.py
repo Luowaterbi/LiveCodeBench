@@ -26,7 +26,15 @@ def get_output_path(model_repr:str, args) -> str:
     n = args.n
     temperature = args.temperature
     cot_suffix = "_cot" if args.cot_code_execution else ""
-    path = f"output/{model_repr}/{scenario}_{n}_{temperature}{cot_suffix}.json"
+    # teacher = "_" + args.model if args.teacher_model else ""
+    if args.student_model:
+        teacher = args.model
+        if "/" in teacher:
+            teacher =teacher.split("/")[-1]
+        teacher = "_" + teacher
+    else:
+        teacher = ""
+    path = f"output/{model_repr}/{scenario}{teacher}_{n}_{temperature}{cot_suffix}.json"
     ensure_dir(path)
     return path
 

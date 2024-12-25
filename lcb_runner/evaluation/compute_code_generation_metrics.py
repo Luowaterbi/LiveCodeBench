@@ -42,6 +42,9 @@ def check_correctness(sample, generation, timeout, debug=True):
     if p.is_alive():
         p.kill()
     if not result:
+        # 没有任何一个子进程在kill之前执行结束，就是代码有死循环，任何一个简单的test case都没有返回结果
+        # 但是官方写的时候只处理了result没有处理metadata_list，metadata_list还是为空
+        # 导致metadata_list[0]执行报错list index out of range
         in_outs = json.loads(sample["input_output"])
         # consider that all tests failed
         result = [[-1 for i in range(len(in_outs["inputs"]))]]
