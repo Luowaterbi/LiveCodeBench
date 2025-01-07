@@ -1,6 +1,6 @@
 import os
 import json
-
+from datetime import datetime
 from lcb_runner.runner.parser import get_args
 from lcb_runner.utils.scenarios import Scenario
 from lcb_runner.lm_styles import LanguageModelStore
@@ -29,13 +29,14 @@ def main():
 
     if args.start_date:
         cut_off = model.release_date if not args.student_model else max(model.release_date, student_model.release_date)
-        benchmark = [
-            instance
-            for instance in benchmark
-            if instance.contest_date >= cut_off
-        ]
         print(f"Only Process Problems whose date is after {cut_off} which is the release date of {model.model_name}")
-    
+    else:
+        cut_off = datetime(2022,1,1)
+    benchmark = [
+        instance
+        for instance in benchmark
+        if instance.contest_date >= cut_off
+    ]
     if args.student_model:
         output_path = get_output_path(student_model.model_repr, args)
     else:
@@ -59,7 +60,7 @@ def main():
         old_save_results = [
             instance
             for instance in old_save_results
-            if instance["output_list"] and [x for x in instance["output_list"] if x]
+            if instance["output_list"] and [x for x in instance["output_list"] if x] and instance["contest_date"] >= cut_off
         ]
         old_save_results_question_ids = [
             instance["question_id"] for instance in old_save_results
@@ -107,10 +108,11 @@ def main():
         if args.continue_existing_with_eval and os.path.exists(eval_all_file):
             with open(eval_all_file) as fp:
                 old_eval_all_results = json.load(fp)
-
+                old_eval_all_results = [instance for instance in old_eval_all_results if instance["contest_date"] >= cut_off]
             if os.path.exists(eval_file):
                 with open(eval_file) as fp:
                     old_eval_results = json.load(fp)
+                    old_eval_results = [instance for instance in old_eval_results if instance["contest_date"] >= cut_off]
             else:
                 old_eval_results = None
 

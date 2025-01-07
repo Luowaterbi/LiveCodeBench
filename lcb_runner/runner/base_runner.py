@@ -4,18 +4,23 @@ from abc import ABC, abstractmethod
 
 from tqdm import tqdm
 
-from lcb_runner.lm_styles import LanguageModel
+from lcb_runner.lm_styles import LanguageModel, LanguageModelStore
 from lcb_runner.utils.path_utils import get_cache_path
 from lcb_runner.utils.multiprocess import run_tasks_in_parallel
 from lcb_runner.runner.scenario_router import Scenario
-
 
 class BaseRunner(ABC):
     def __init__(self, args, model: LanguageModel):
         self.args = args
         self.model = model
         self.client_kwargs: dict[str | str] = {}
-
+        self.student_model = None
+        self.gar = None
+        if args.student_model:
+            self.student_model = LanguageModelStore[args.student_model]
+            if args.gar:
+                print("Load GAR from:", args.gar)
+                self.gar = json.load(open(args.gar))
         if self.args.use_cache:
             self.cache_path = get_cache_path(model.model_repr, args)
             if os.path.exists(self.cache_path):
@@ -122,9 +127,11 @@ class BaseRunner(ABC):
 
     def run_main_repair(self, benchmark: list, format_prompt: callable) -> list[list[str]]:
         assert self.args.n == 1
-        with open(
-            f"output/{self.model.model_repr}/{Scenario.codegeneration}_{self.args.codegen_n}_{self.args.temperature}_eval_all.json"
-        ) as f:
+        source_path = f"output/{self.model.model_repr}/{Scenario.codegeneration}_{self.args.codegen_n}_{self.args.temperature}_eval_all.json"
+        if self.student_model:
+            source_path = f"output/{self.student_model.model_repr}/{Scenario.codegeneration}_{self.args.codegen_n}_{self.args.temperature}_eval_all.json"
+            print(f"Load source from {self.student_model.model_repr}")
+        with open(source_path) as f:
             check_metadata_list = json.load(f)
 
         outputs = [
@@ -145,13 +152,16 @@ class BaseRunner(ABC):
                     output_list = check_metadata["output_list"]
                     graded_list = check_metadata["graded_list"]
                     metadata = check_metadata["metadata"]
+                    gar = self.gar[problem.question_id] if self.gar else ""
                     for code_idx in range(len(code_list)):
+                        meta = json.loads(metadata[code_idx])
+                        meta["gar"] = gar
                         prompt = format_prompt(
                             question_content,
                             self.model.model_style,
                             code_list[code_idx],
                             graded_list[code_idx],
-                            metadata[code_idx],
+                            meta
                         )
                         if prompt == "":
                             outputs[problem_idx][code_idx] = output_list[code_idx]
@@ -161,7 +171,9 @@ class BaseRunner(ABC):
                         prompt_index_to_code_idx[len(prompts) - 1] = code_idx
 
         assert len(benchmark)==count, f"{len(benchmark)=}!={count=}"
-
+        import random
+        for i in random.choices(prompts, k=3):
+            print(i)
         prompt_outputs = self.prompts_to_outputs(prompts)
         for prompt_idx, output in enumerate(prompt_outputs):
             question_idx = prompt_index_to_question_idx[prompt_idx]

@@ -136,4 +136,7 @@ def load_code_generation_dataset_not_fast(release_version="release_v1") -> list[
 
 
 if __name__ == "__main__":
-    dataset = load_code_generation_dataset()
+    dataset = load_dataset("/data/datasets/code_generation_lite", split="test", version_tag="release_v4", trust_remote_code=True)
+    for d in dataset[:2]:
+        print(json.dumps(d, indent=4))
+

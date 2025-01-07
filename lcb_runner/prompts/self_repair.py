@@ -8,6 +8,8 @@ from lcb_runner.lm_styles import LMStyle
 class PromptConstants:
     SYSTEM_MESSAGE_GENERIC = f"You are a helpful programming assistant and an expert Python programmer. You are helping a user write a program to solve a problem. The user has written some code, but it has some errors and is not passing the tests. You will help the user by first giving a concise (at most 2-3 sentences) textual explanation of what is wrong with the code. After you have pointed out what is wrong with the code, you will then generate a fixed version of the program. You must put the entired fixed program within code delimiters only for once."
 
+    SYSTEM_MESSAGE_GENERIC_GAR = f"You are a helpful programming assistant and an expert Python programmer. You are helping a user write a program to solve a problem. The user has written some code, but it has some errors and is not passing the tests. To avoid being misled by the incorrect code, you generate a solution based on the question (note that your own generated solution may not be correct either). After carefully comparing the differences, you will help the user by first giving a concise (at most 2-3 sentences) textual explanation of what is wrong with the code. After you have pointed out what is wrong with the code, you will then generate a fixed version of the program. You must put the entire fixed program within code delimiters only for once."
+
     SYSTEM_MESSAGE_DEEPSEEK = f"You are an AI programming assistant, utilizing the DeepSeek Coder model, developed by DeepSeek Company, and you are helping a user correct a error program for code competition. The user has written some code, but it has some errors and is not passing the tests. You will help the user by first giving a concise (at most 2-3 sentences) textual explanation of what is wrong with the code. After you have pointed out what is wrong with the code, you will then generate a fixed version of the entire executable program. You must put the entire fixed executable program within code delimiters."
 
     SYSTEM_MESSAGE_MAGIC = f"You are an exceptionally intelligent coding assistant that consistently delivers accurate and reliable responses to user instructions.\n\n@@ Instruction\n"
@@ -38,7 +40,7 @@ def get_check_prompt(question: str, result, metadata):
     # result_by_test_case = result
     # assert len(metadata) == 1, f"metadata = {metadata}"
     # metadata = metadata[0]
-    metadata = json.loads(metadata)
+    # metadata = json.loads(metadata)
     if "error_code" not in metadata:
         return ""
     if metadata["error_code"] == -1:
@@ -358,6 +360,50 @@ def format_prompt_self_repair(
         raise NotImplementedError(
             f"LanguageModelStyle {LanguageModelStyle} not implemented"
         )
+
+def get_generic_question_template_answer_gar(question: str, code, result, metadata):
+    prompt = f"### Question:\n{question}\n\n"
+    prompt += f"### Self Generated Solution:\n```python\n{metadata['gar']}\n```\n\n"
+    prompt += f"### User Solution:\n```python\n{code}\n```\n\n"
+    prompt += get_check_prompt(question, result, metadata) + "\n"
+    prompt += f"### Format: {PromptConstants.FORMATTING_WITHOUT_STARTER_CODE}\n"
+    prompt += "```python\n# YOUR CODE HERE\n```\n\n"
+    prompt += f"### Answer: (use the provided format with backticks)\n\n"
+    return prompt
+
+def format_prompt_self_repair_gar(question: str, LanguageModelStyle: LMStyle, code, result, metadata, 
+) -> str:
+    if result:
+        # The code is accepted, no need to change anything.
+        return ""
+    if LanguageModelStyle == LMStyle.CodeQwenInstruct:
+        chat_messages = [
+            {"role": "system", "content": PromptConstants.SYSTEM_MESSAGE_GENERIC_GAR},
+        ]
+        chat_messages += [
+            {
+                "role": "user",
+                "content": get_generic_question_template_answer_gar(
+                    question, code, result, metadata
+                ),
+            },
+        ]
+
+        from transformers import AutoTokenizer
+
+        tokenizer = AutoTokenizer.from_pretrained(
+            "/mnt/jfs/ckpt/checkpoints/Qwen2.5-Coder-7B-Instruct", padding_side="left", use_fast=False
+        )
+        return tokenizer.apply_chat_template(
+            chat_messages,
+            tokenize=False,
+            add_generation_prompt=True,
+            truncation=False,
+            padding=False,
+        )
+    else:
+        raise NotImplementedError
+
 
 
 def extract_code(model_output: str, lmstyle: LMStyle):

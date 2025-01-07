@@ -14,6 +14,7 @@ from lcb_runner.prompts import (
     format_prompt_execution,
     format_prompt_execution_cot,
     format_prompt_self_repair,
+    format_prompt_self_repair_gar
 )
 from lcb_runner.utils.extraction_utils import (
     extract_code,
@@ -63,6 +64,9 @@ def build_prompt_benchmark(
         benchmark = load_code_generation_dataset(args.release_version)
         benchmark = sorted(benchmark, key=lambda x: x.question_id)
         format_prompt = format_prompt_self_repair
+        if args.gar:
+            print("GAR!: ", args.gar)
+            format_prompt = format_prompt_self_repair_gar
     elif scenario == Scenario.codeexecution:
         cot_code_execution: bool = args.cot_code_execution
         benchmark = load_code_execution_dataset(args.release_version)
