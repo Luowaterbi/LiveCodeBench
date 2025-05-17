@@ -13,6 +13,9 @@ class Platform(Enum):
     LEETCODE = "leetcode"
     CODEFORCES = "codeforces"
     ATCODER = "atcoder"
+    CTF_LEETCODE = "ctf_leetcode"
+    CTF_CODEFORCES = "ctf_codeforces"
+    CTF_ATCODER = "ctf_atcoder"
 
 
 class Difficulty(Enum):
@@ -52,12 +55,12 @@ class CodeGenerationProblem:
     public_test_cases: list[Test]
     private_test_cases: list[Test]
     metadata: dict
-
+    solution: str = ""
+    idx: int = -1
     def __post_init__(self):
         self.platform = Platform(self.platform)
         self.difficulty = Difficulty(self.difficulty)
         self.contest_date = datetime.fromisoformat(self.contest_date)
-
         self.public_test_cases = json.loads(self.public_test_cases)  # type: ignore
         self.public_test_cases = [Test(**t) for t in self.public_test_cases]
 
@@ -122,7 +125,13 @@ class CodeGenerationProblem:
 
 
 def load_code_generation_dataset(release_version="release_v1") -> list[CodeGenerationProblem]:
-    dataset = load_dataset("/data/datasets/code_generation_lite", split="test", version_tag=release_version, trust_remote_code=True)
+    if release_version == "ctf":
+        dataset = json.load(open("/home/i-luoxianzhen/GAR/CTF/good_ctf2.json", "r"))
+    elif release_version == "easy":
+        dataset = json.load(open("/home/i-luoxianzhen/GAR/CTF/good_easy.json", "r")) 
+    else:
+        dataset = load_dataset("/mnt/jfs/luoxianzhen/code_generation_lite", split="test", version_tag=release_version, trust_remote_code=True)
+    
     dataset = [CodeGenerationProblem(**p) for p in dataset]  # type: ignore
     print(f"Loaded {len(dataset)} problems")
     return dataset

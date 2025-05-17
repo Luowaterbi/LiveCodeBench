@@ -8,7 +8,7 @@ except ImportError:
 
 from lcb_runner.lm_styles import LMStyle
 from lcb_runner.benchmarks.code_generation import CodeGenerationProblem
-
+from transformers import AutoTokenizer
 
 class PromptConstants:
     SYSTEM_MESSAGE_GENERIC = f"You are an expert Python programmer. You will be given a question (problem specification) and will generate a correct Python program that matches the specification and passes all tests. You will NOT return anything except for the program."
@@ -204,7 +204,7 @@ def get_base_model_question_template_answer(question: CodeGenerationProblem):
 
 
 def format_prompt_generation(
-    question: CodeGenerationProblem, LanguageModelStyle: LMStyle
+    question: CodeGenerationProblem, LanguageModelStyle: LMStyle, local_model_path: str = None
 ) -> str:
     if LanguageModelStyle in [LMStyle.OpenAIChat, LMStyle.DeepSeekAPI]:
         chat_messages = [
@@ -363,6 +363,25 @@ def format_prompt_generation(
     if LanguageModelStyle == LMStyle.GenericBase:
         prompt = get_base_model_question_template_answer(question)
         return prompt
+
+    if LanguageModelStyle == LMStyle.GenericInstruct:
+        chat_messages = [
+            {
+                "role": "user",
+                "content": PromptConstants.SYSTEM_MESSAGE_GENERIC + "\n\n" + get_generic_question_template_answer(question),
+            },
+        ]
+        from transformers import AutoTokenizer
+        tokenizer = AutoTokenizer.from_pretrained(
+            local_model_path, padding_side="left", use_fast=False
+        )
+        return tokenizer.apply_chat_template(
+            chat_messages,
+            tokenize=False,
+            add_generation_prompt=True,
+            truncation=False,
+            padding=False,
+        )
 
     if LanguageModelStyle == LMStyle.DracarysQwen:
         prompt = f"{PromptConstants.SYSTEM_MESSAGE_CODEQWEN}\n\n"

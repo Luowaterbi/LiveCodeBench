@@ -34,6 +34,7 @@ class LMStyle(Enum):
     LLaMa3 = "LLaMa3"
     DracarysLlama = "DracarysLlama"
     DracarysQwen = "DracarysQwen"
+    GenericInstruct = "GenericInstruct"
 
 
 @dataclass
@@ -49,6 +50,13 @@ class LanguageModel:
 
 
 LanguageModelList: list[LanguageModel] = [
+    LanguageModel(
+        "meta-llama/Meta-Llama-3-70B",
+        "LLama3-70b-Base",
+        LMStyle.GenericBase,
+        datetime(2023, 1, 1),
+        link="https://huggingface.co/meta-llama/Meta-Llama-3-70B",
+    ),
     LanguageModel(
         "meta-llama/Meta-Llama-3-70B",
         "LLama3-70b-Base",
@@ -163,7 +171,7 @@ LanguageModelList: list[LanguageModel] = [
     ),
     LanguageModel(
         "deepseek-chat",
-        "DeepSeek-V2",
+        "DeepSeek-V3",
         LMStyle.DeepSeekAPI,
         datetime(2023, 8, 1),
         link="https://huggingface.co/deepseek-ai/DeepSeek-V2",
@@ -318,8 +326,8 @@ LanguageModelList: list[LanguageModel] = [
         link="https://openai.com/index/spring-update",
     ),
     LanguageModel(
+        "gpt-4o",
         "gpt-4o-2024-08-06",
-        "GPT-4O-2024-08-06",
         LMStyle.OpenAIChat,
         datetime(2023, 4, 30),
         link="https://openai.com/index/spring-update",
@@ -333,21 +341,21 @@ LanguageModelList: list[LanguageModel] = [
     ),
     LanguageModel(
         "chatgpt-4o-latest",
-        "ChatGPT-4O-Latest-08-24",
+        "chatgpt-4o-latest",
         LMStyle.OpenAIChat,
         datetime(2023, 4, 30),
         link="https://openai.com/index/spring-update",
     ),
     LanguageModel(
-        "o1-preview-2024-09-12",
-        "O1-Preview-2024-09-12 (N=1)",
+        "o1-preview",
+        "o1-preview",
         LMStyle.OpenAIReason,
         datetime(2023, 4, 30),
         link="https://openai.com/index/spring-update",
     ),
     LanguageModel(
-        "o1-mini-2024-09-12",
-        "O1-Mini-2024-09-12 (N=1)",
+        "o1-mini",
+        "o1-mini",
         LMStyle.OpenAIReason,
         datetime(2023, 4, 30),
         link="https://openai.com/index/spring-update",
@@ -382,7 +390,7 @@ LanguageModelList: list[LanguageModel] = [
     ),
     LanguageModel(
         "claude-3-5-sonnet-20240620",
-        "Claude-3.5-Sonnet",
+        "Claude-3-5-Sonnet",
         LMStyle.Claude3,
         datetime(2024, 3, 31),
         link="https://www.anthropic.com/news/claude-3-5-sonnet",

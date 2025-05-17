@@ -223,7 +223,11 @@ def run_test(sample, test=None, debug=False, timeout=6):
             if which_type == CODE_TYPE.call_based:
                 inputs = [json.loads(line) for line in inputs.split("\n")]
                 in_outs["outputs"][index] = json.loads(in_outs["outputs"][index])
-
+                # try:
+                #     in_outs["outputs"][index] = json.loads(in_outs["outputs"][index])
+                # except Exception as e:
+                #     print("BAD output!", in_outs["outputs"][index])
+                #     exit()
                 truncate_line_size = 300 // (raw_inputs.count("\n") + 1)
                 raw_inputs = "\n".join(
                     [

@@ -5,16 +5,17 @@ try:
     import openai
     from openai import OpenAI
 except ImportError as e:
-    pass
+    print("Cannot import openai")
 
 from lcb_runner.lm_styles import LMStyle
 from lcb_runner.runner.base_runner import BaseRunner
 
 
 class OpenAIRunner(BaseRunner):
-    client = OpenAI(
-        api_key=os.getenv("OPENAI_KEY"),
-    )
+    # client = OpenAI(
+    #     api_key=os.getenv("OPENAI_KEY"),
+    # )
+    client = OpenAI(api_key="ak-58d7efgh23i4jkl67mno89pqrs01tuv6k5", base_url= "https://models-proxy.stepfun-inc.com/v1")
 
     def __init__(self, args, model):
         super().__init__(args, model)

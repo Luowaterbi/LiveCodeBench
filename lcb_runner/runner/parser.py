@@ -121,7 +121,7 @@ def get_args():
     parser.add_argument("--start_date", action="store_true", help="Whether only need problems after start date of model")
     parser.add_argument("--student_model", type=str, default="", help="The student model need to be repaired")
     parser.add_argument("--gar", type=str, default="", help="path to gar path")
-    
+    parser.add_argument("--suffix", type=str, default="", help="path to gar path")
     args = parser.parse_args()
 
     args.stop = args.stop.split(",")

@@ -3,7 +3,7 @@ import json
 from datetime import datetime
 from lcb_runner.runner.parser import get_args
 from lcb_runner.utils.scenarios import Scenario
-from lcb_runner.lm_styles import LanguageModelStore
+from lcb_runner.lm_styles import LanguageModelStore, LanguageModel, LMStyle
 from lcb_runner.runner.runner_utils import build_runner
 from lcb_runner.utils.path_utils import get_output_path
 from lcb_runner.evaluation import extract_instance_results
@@ -14,11 +14,13 @@ from lcb_runner.runner.scenario_router import (
     get_metrics,
 )
 
-
 def main():
     args = get_args()
-
-    model = LanguageModelStore[args.model]
+    if args.model in LanguageModelStore:
+        model = LanguageModelStore[args.model]
+    else:
+        print(f"new model:{args.model}")
+        model = LanguageModel(args.model, args.model, LMStyle.GenericInstruct, datetime(2024, 7, 1),)
     benchmark, format_prompt = build_prompt_benchmark(args)
     if args.debug:
         print(f"Running with {len(benchmark)} instances in debug mode")
@@ -60,7 +62,7 @@ def main():
         old_save_results = [
             instance
             for instance in old_save_results
-            if instance["output_list"] and [x for x in instance["output_list"] if x] and instance["contest_date"] >= cut_off
+            if instance["output_list"] and [x for x in instance["output_list"] if x] and datetime.fromisoformat(instance["contest_date"]) >= cut_off
         ]
         old_save_results_question_ids = [
             instance["question_id"] for instance in old_save_results
@@ -108,11 +110,11 @@ def main():
         if args.continue_existing_with_eval and os.path.exists(eval_all_file):
             with open(eval_all_file) as fp:
                 old_eval_all_results = json.load(fp)
-                old_eval_all_results = [instance for instance in old_eval_all_results if instance["contest_date"] >= cut_off]
+                old_eval_all_results = [instance for instance in old_eval_all_results if datetime.fromisoformat(instance["contest_date"]) >= cut_off]
             if os.path.exists(eval_file):
                 with open(eval_file) as fp:
                     old_eval_results = json.load(fp)
-                    old_eval_results = [instance for instance in old_eval_results if instance["contest_date"] >= cut_off]
+                    old_eval_results = [instance for instance in old_eval_results if datetime.fromisoformat(instance["contest_date"]) >= cut_off]
             else:
                 old_eval_results = None
 
